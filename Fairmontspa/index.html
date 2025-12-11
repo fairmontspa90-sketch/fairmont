@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fairmont Baku Spa - Virtual Concierge</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #c5a059; /* Fairmont Gold Tone */
+            --primary-dark: #1a1a1a;
+            --secondary-dark: #2c2c2c;
+            --text-grey: #4a4a4a;
+            --bg-cream: #f9f8f4;
+            --chat-user: #c5a059;
+            --chat-bot: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-cream);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: var(--primary-dark);
+            color: var(--primary-gold);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            font-family: 'Times New Roman', serif;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-subtitle {
+            font-size: 10px;
+            color: #fff;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #4ade80;
+        }
+
+        /* --- Chat Area --- */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0iI2M1YTA1OSIgZmlsbC1vcGFjaXR5PSIwLjEiLz48L3N2Zz4=');
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .message.bot .message-bubble {
+            background: var(--chat-bot);
+            color: var(--secondary-dark);
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .message.user .message-bubble {
+            background: var(--chat-user);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .message-bubble a {
+            color: #c5a059;
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 1px dotted #c5a059;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        /* --- Quick Actions (Chips) --- */
+        .quick-actions-container {
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.9);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            white-space: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; 
+        }
+
+        .quick-actions-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chips-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chip {
+            background: white;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .chip:hover, .chip:active {
+            background: var(--primary-gold);
+            color: white;
+        }
+
+        /* --- Input Area --- */
+        .input-area {
+            background: white;
+            padding: 15px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            outline: none;
+            transition: border-color 0.3s;
+            background: #fcfcfc;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-gold);
+        }
+
+        .send-btn {
+            background: var(--primary-gold);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(197, 160, 89, 0.4);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- Typing Indicator --- */
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary-gold);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Social & Contact Bar --- */
+        .info-bar {
+            background: var(--secondary-dark);
+            color: white;
+            padding: 8px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 12px;
+        }
+        
+        .info-link {
+            color: #ccc;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .info-link:hover {
+            color: var(--primary-gold);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-info">
+            <div>
+                <div class="header-logo">FAIRMONT SPA</div>
+                <div class="header-subtitle">BAKU FLAME TOWERS</div>
+            </div>
+        </div>
+        <div class="status-dot"></div>
+    </div>
+
+    <div class="info-bar">
+        <a href="tel:+994125654846" class="info-link"><i class="fas fa-phone"></i> Zəng</a>
+        <a href="https://wa.me/994512063737" target="_blank" class="info-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://www.instagram.com/fairmontspabaku/" target="_blank" class="info-link"><i class="fab fa-instagram"></i> Instagram</a>
+    </div>
+
+    <div class="chat-container" id="chatBox">
+        <!-- Messages will appear here -->
+    </div>
+
+    <div class="typing-indicator" id="typing">
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+
+    <div class="quick-actions-container">
+        <div class="chips-wrapper">
+            <div class="chip" onclick="handleChip('Masajlar')"><i class="fas fa-spa"></i> Masajlar</div>
+            <div class="chip" onclick="handleChip('Günlük Giriş')"><i class="fas fa-ticket-alt"></i> Giriş</div>
+            <div class="chip" onclick="handleChip('Üzvlük')"><i class="fas fa-gem"></i> Üzvlük</div>
+            <div class="chip" onclick="handleChip('Rezervasiya')"><i class="far fa-calendar-check"></i> Rezerv</div>
+            <div class="chip" onclick="handleChip('Hədiyyə Kartı')"><i class="fas fa-gift"></i> Hədiyyə</div>
+            <div class="chip" onclick="handleChip('Ünvan')"><i class="fas fa-map-marker-alt"></i> Ünvan</div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" class="input-field" id="userInput" placeholder="Sualınızı yazın..." onkeypress="handleEnter(event)">
+        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+
+    <script>
+        // --- Data Knowledge Base (AZ + TR Keywords) ---
+        const spaData = {
+            general: {
+                greeting: "Salam! Fairmont Baku **Carol Joy Spa**-nın virtual köməkçisiyəm. ✨\n\nSizə massajlar, günlük giriş, üzvlük və ya hədiyyə kartları barədə məlumat verə bilərəm. Nədən başlayaq?",
+                fallback: "Bu sual barədə dəqiq məlumatım yoxdur. Zəhmət olmasa aşağıdakı mövzulardan birini seçin və ya bizimlə birbaşa əlaqə saxlayın:\n\n💬 <a href='https://wa.me/994512063737' target='_blank'>WhatsApp Dəstək</a>"
+            },
+            facilities: {
+                // TR/AZ: Hamam, sauna, hovuz, havuz, buhar
+                keywords: ["hamam", "hammam", "sauna", "buxar", "steam", "hovuz", "pool", "havuz", "jakuzzi", "jacuzzi", "buhar", "kese", "köpük", "kopuk", "spa var mi", "hamam var mi"],
+                text: "🛁 **Spa Obyektləri (Facilities):**\n\n✅ **Türk Hamamı:** Regionun ən böyük Türk Hamamı.\n✅ **Sauna & Buxar:** Fin saunası, Buxar otağı və Buz fəvvarəsi.\n✅ **Hovuz:** Daxili mozaika hovuz və Vitality (hidromasaj) hovuzu.\n\n*Qeyd:* Hamam və hovuz istifadəsi günlük girişə və ya hər hansı masaj rezervasiyasına daxildir."
+            },
+            gender_policy: {
+                // TR: Kadın, erkek, ayrı mı, karışık mı
+                keywords: ["qadın", "kişi", "xanım", "bəy", "ayrı", "women", "men", "cins", "gender", "qarışıq", "birgə", "qadin", "kisi", "bayan", "erkek", "ayrimi", "karisik", "birlikte"],
+                text: "👥 **Qadın və Kişi Saatları:**\n\nFairmont Spa mərkəzində qadın və ya kişi saatı/günü tətbiqi **yoxdur**.\n\n✅ Fitness, qapalı hovuz və digər bütün sahələrimiz **ümumi** istifadə üçündür.\n\n🚿 Lakin, spa mərtəbəsindəki soyunub-geyinmə otağında yerləşən sauna və buxar otağı sahələri qadınlar və kişilər üçün **ayrıdır**."
+            },
+            treatments: {
+                // TR: Masaj, bakım, fiyat, ne var
+                keywords: ["masaj", "massage", "facial", "üz", "bədən", "xidmət", "menu", "menyu", "prosedur", "terapiya", "msaj", "masj", "bakim", "vucut", "yuz", "hizmet", "neler", "cesit"],
+                text: "💆‍♀️ **Masaj və Prosedurlar:**\n\nBütün masaj növləri və xidmət menyusu üçün aşağıdakı linkə keçid edin:\n\n🔗 <a href='https://linktr.ee/Fairmontspa' target='_blank'>Xidmət Menyusu (Linktree)</a>\n\nSpa proseduru aldığınız zaman Spa sahəsindən istifadə ödənişsizdir."
+            },
+            membership: {
+                // TR: Üyelik, aidat, ne kadar, ucret, paket
+                keywords: ["üzv", "membership", "aylıq", "illik", "qiymət", "paket", "price", "member", "quartz", "silver", "gold", "uyelik", "uzv", "abunə", "ucret", "fiyat", "kac", "ne kadar", "kaça"],
+                text: "💎 **Üzvlük Növləri:**\n\n🔹 **Quartz:** Yalnız qrup dərslərini ehtiva edir.\n\n🔹 **Silver Lite:** 06:30 - 17:00 arası istifadə. (Qapalı hovuz, sauna, buxar, cakuzi, fitness və qrup dərsləri). *Qeyd: Açıq hovuz daxil deyil.*\n\n🔹 **Gold və Diamond:** 24 saat giriş + Açıq hovuz daxildir.\n\n🔗 <a href='https://linktr.ee/Fairmontspa' target='_blank'>Paketlər haqqında ətraflı</a>\n\nÜstünlüklər üçün canlı dəstək:\n💬 <a href='https://wa.me/994512063737' target='_blank'>WhatsApp (+994 51 206 37 37)</a>"
+            },
+            daily_entry: {
+                // TR: Giriş ücreti, günlük, kaç para
+                keywords: ["giriş", "gunluk", "günlük", "qiymət", "price", "ödəniş", "nə qədər", "entry", "day pass", "giris", "neciye", "kac para", "ucreti", "gunlugu"],
+                text: "🎟️ **Günlük Giriş Qiymətləri:**\n\n• Həftə içi: **65 AZN**\n• Həftə sonu və bayramlar: **75 AZN**\n\n✅ **Qiymətə daxildir:** Soyunma dolabı, dəsmal, başmaq, xalat, qapalı hovuz, cakuzi, sauna, buxar otağı və istirahət zonaları.\n\n💡 *Qeyd:* Hər hansı SPA masajı sifariş etdikdə giriş ödənişsizdir."
+            },
+            reservation: {
+                // TR: Randevu, yer ayırt, rezervasyon
+                keywords: ["rezerv", "reservation", "sifariş", "booking", "online", "onlayn", "yer", "randevu", "rezervasyon", "ayirt", "book"],
+                text: "📅 **Rezervasiya:**\n\nOnlayn rezervasiya üçün:\n🌐 <a href='https://emea.spatime.com/fhb11006/6298603/offering?types=1,0,4,8,16' target='_blank'>Onlayn Sifariş Linki</a>\n\nSürətli rezervasiya üçün Canlı Dəstək:\n💬 <a href='https://wa.me/994512063737' target='_blank'>WhatsApp (+994 51 206 37 37)</a>"
+            },
+            gift: {
+                // TR: Hediye, kart
+                keywords: ["hədiyyə", "gift", "kart", "card", "hediyye", "hediye", "armagan"],
+                text: "🎁 **Hədiyyə Kartları:**\n\nSevdiklərinizə müəyyən məbləğdə balans və ya xüsusi bir prosedur (menyudan seçilən) hədiyyə edə bilərsiniz.\n\n• Onlayn ödəniş mümkündür.\n• Kuryer ilə çatdırılma var.\n\nSifariş üçün: <a href='https://wa.me/994512063737' target='_blank'>WhatsApp ilə əlaqə</a>"
+            },
+            training: {
+                // TR: Özel ders, hoca, antrenör
+                keywords: ["pt", "personal", "ferdi", "məşq", "idman", "training", "coach", "mesq", "mesqci", "ozel", "ders", "hoca", "antrenor"],
+                text: "🏋️‍♂️ **Fərdi Məşq (Personal Training):**\n\nPeşəkar məşqçilərimizlə fərdi dərslər mövcuddur. Ətraflı məlumat üçün bizi yönləndirin:\n\n💬 <a href='https://wa.me/994512063737' target='_blank'>WhatsApp Dəstək</a>"
+            },
+            contact: {
+                // TR: Nerede, adres, telefon, konum, whatsapp
+                keywords: ["əlaqə", "contact", "tel", "nömrə", "ünvan", "location", "yer", "adres", "harda", "harada", "zəng", "zeng", "nerede", "konum", "iletisim", "whatsapp", "watsap", "wp"],
+                text: "📍 **Ünvan və Əlaqə:**\n\n📱 **WhatsApp:** <a href='https://wa.me/994512063737' target='_blank'>+994 51 206 37 37</a> (Canlı Dəstək)\n\n📞 **Tel:** +994 12 565 48 46\n\n📍 **Ünvan:** Fairmont Baku Hotel, 5-ci mərtəbə.\n🗺️ <a href='https://share.google/xlfZYYLqsuMiQ3txk' target='_blank'>Google Maps-də aç</a>"
+            }
+        };
+
+        // --- Core Functions ---
+
+        function initChat() {
+            setTimeout(() => {
+                addMessage(spaData.general.greeting, 'bot');
+            }, 500);
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function handleChip(text) {
+            document.getElementById('userInput').value = text;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            
+            if (text === "") return;
+
+            // Add user message
+            addMessage(text, 'user');
+            input.value = "";
+
+            // Show typing indicator
+            const typing = document.getElementById('typing');
+            typing.style.display = 'block';
+            
+            // Scroll to bottom
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Process response
+            setTimeout(() => {
+                typing.style.display = 'none';
+                const response = getBotResponse(text);
+                addMessage(response, 'bot');
+            }, 800); 
+        }
+
+        function addMessage(text, sender) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Convert simple markdown-like syntax to HTML
+            let formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\n/g, '<br>'); // Line breaks
+
+            msgDiv.innerHTML = `
+                <div class="message-bubble">${formattedText}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // --- Intelligent Matching Logic (Fuzzy Search) ---
+
+        // Levenshtein distance
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+
+            var matrix = [];
+            var i;
+            for (i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            var j;
+            for (j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (i = 1; i <= b.length; i++) {
+                for (j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, 
+                                                Math.min(matrix[i][j - 1] + 1, 
+                                                         matrix[i - 1][j] + 1)); 
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // Check if input is similar to keyword
+        function isSimilar(inputWord, keyword) {
+            const distance = levenshteinDistance(inputWord, keyword);
+            const maxLength = Math.max(inputWord.length, keyword.length);
+            const similarity = 1 - (distance / maxLength);
+            
+            // More forgiving thresholds
+            if (keyword.length <= 4) return similarity > 0.75; 
+            return similarity > 0.60; 
+        }
+
+        function getBotResponse(input) {
+            const lowerInput = input.toLowerCase();
+            // Remove punctuation for better matching
+            const cleanInput = lowerInput.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            const words = cleanInput.split(/\s+/);
+
+            let bestMatch = null;
+            let highestScore = 0;
+
+            for (const key in spaData) {
+                if (key === 'general') continue;
+                
+                const category = spaData[key];
+                let categoryScore = 0;
+
+                for (const keyword of category.keywords) {
+                    // 1. Direct match
+                    if (lowerInput.includes(keyword)) {
+                        categoryScore += 10; 
+                    }
+
+                    // 2. Fuzzy match word-by-word
+                    for (const word of words) {
+                        if (isSimilar(word, keyword)) {
+                            categoryScore += 3;
+                        }
+                    }
+                }
+
+                if (categoryScore > highestScore) {
+                    highestScore = categoryScore;
+                    bestMatch = category.text;
+                }
+            }
+
+            // Conversational / Greetings
+            if (["salam", "merhaba", "slm", "hello", "hi", "naber", "nasilsin"].some(w => lowerInput.includes(w))) {
+                return "Salam! 👋 Sizə Spa xidmətlərimiz haqqında necə kömək edə bilərəm?";
+            }
+            if (["sag ol", "tesekkur", "tamam", "ok", "tşk", "teşekkür"].some(w => lowerInput.includes(w))) {
+                return "Buyurun! 🌟 Fairmont Spa-nı seçdiyiniz üçün təşəkkürlər.";
+            }
+
+            // Return best match if score is sufficient
+            if (highestScore > 0) {
+                return bestMatch;
+            }
+
+            return spaData.general.fallback;
+        }
+
+        window.onload = initChat;
+
+    </script>
+</body>
+</html>
